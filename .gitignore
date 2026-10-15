@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/ccf-deadlines-main/
+data/*.tar.gz
+data/ccf_catalog.html
+data/journals_raw.json
+__pycache__/
+.DS_Store
+*.log
