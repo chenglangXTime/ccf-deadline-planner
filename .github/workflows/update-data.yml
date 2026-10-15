@@ -1,0 +1,40 @@
+name: Update CCF deadline data
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+  schedule:
+    # 每周一 10:23 (北京时间) 刷新数据
+    - cron: '23 2 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Rebuild data
+        run: |
+          rm -rf data/ccf-deadlines-main data/ccf_catalog.html
+          python scripts/build_data.py
+          python scripts/build_journals.py
+
+      - name: Commit updated data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore(data): refresh CCF conferences & journals'
+          file_pattern: 'web/src/data/*.json'
