@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ExternalLink, Star, MapPin, CalendarDays } from 'lucide-react';
+import { ExternalLink, Star, MapPin, CalendarDays, CalendarPlus } from 'lucide-react';
 import venueNotes from '@/data/venue_notes.json';
+import { buildICS, confToIcsEvents, downloadICS } from '@/lib/ics';
 
 const NOTES: Record<string, string> = (venueNotes as unknown as { venues: Record<string, string> }).venues;
 
@@ -156,6 +157,15 @@ export default function ConferenceDetail({ conf, now, fav, onToggleFav, onClose 
               )}
               <Button size="sm" variant={fav ? 'default' : 'outline'} onClick={onToggleFav}>
                 <Star className={`w-4 h-4 mr-1 ${fav ? 'fill-current' : ''}`} /> {fav ? '已收藏' : '收藏'}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={ups.length === 0}
+                title="导出该会议所有未来截稿日期为 .ics，含截止前 7 天/1 天/3 小时提醒"
+                onClick={() => downloadICS(`${conf.title}-DDL.ics`, buildICS(confToIcsEvents(conf, now)))}
+              >
+                <CalendarPlus className="w-4 h-4 mr-1" /> 导出 DDL 到日历
               </Button>
             </div>
           </div>

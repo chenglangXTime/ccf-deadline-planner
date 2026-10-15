@@ -6,9 +6,9 @@ import { Star, MapPin, CalendarDays, Timer } from 'lucide-react';
 
 export function RankBadge({ rank, label = 'CCF' }: { rank: string; label?: string }) {
   const color =
-    rank === 'A' ? 'bg-red-500/15 text-red-600 border-red-300 dark:text-red-400'
-    : rank === 'B' ? 'bg-amber-500/15 text-amber-600 border-amber-300 dark:text-amber-400'
-    : rank === 'C' ? 'bg-emerald-500/15 text-emerald-600 border-emerald-300 dark:text-emerald-400'
+    rank === 'A' ? 'bg-indigo-500/15 text-indigo-700 border-indigo-300 dark:text-indigo-300'
+    : rank === 'B' ? 'bg-sky-500/15 text-sky-700 border-sky-300 dark:text-sky-300'
+    : rank === 'C' ? 'bg-teal-500/15 text-teal-700 border-teal-300 dark:text-teal-300'
     : 'bg-muted text-muted-foreground';
   return (
     <Badge variant="outline" className={`${color} font-semibold`}>{label}-{rank}</Badge>
@@ -20,7 +20,7 @@ export function Countdown({ ts, now }: { ts: number; now: number }) {
   if (c.past) return <span className="text-muted-foreground text-sm">已截止</span>;
   const urgent = c.days < 7;
   return (
-    <span className={`font-mono tabular-nums font-semibold ${urgent ? 'text-red-500' : c.days < 30 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}`}>
+    <span className={`font-mono tabular-nums font-semibold ${urgent ? 'text-indigo-600 dark:text-indigo-400 font-bold' : c.days < 30 ? 'text-sky-600 dark:text-sky-400' : 'text-foreground'}`}>
       {c.days}天 {String(c.hours).padStart(2, '0')}:{String(c.mins).padStart(2, '0')}:{String(c.secs).padStart(2, '0')}
     </span>
   );

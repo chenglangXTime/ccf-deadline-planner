@@ -9,7 +9,9 @@ import ConferenceCard from '@/sections/ConferenceCard';
 import ConferenceDetail from '@/sections/ConferenceDetail';
 import { JournalCard, JournalDetail } from '@/sections/JournalSection';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, Github } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { GraduationCap, Github, CalendarPlus } from 'lucide-react';
+import { buildICS, confToIcsEvents, downloadICS } from '@/lib/ics';
 
 const CONFERENCES = (confData as unknown as { conferences: Conference[] }).conferences;
 const JOURNALS = (journalData as unknown as { journals: Journal[] }).journals;
@@ -36,6 +38,7 @@ export default function Home() {
   const [now, setNow] = useState(() => Date.now());
   const [openConf, setOpenConf] = useState<Conference | null>(null);
   const [openJournal, setOpenJournal] = useState<Journal | null>(null);
+  const [exportMsg, setExportMsg] = useState('');
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -92,6 +95,25 @@ export default function Home() {
     [now]
   );
 
+  const favConfCount = useMemo(
+    () => CONFERENCES.filter((c) => favs.has('c:' + confKey(c))).length,
+    [favs]
+  );
+
+  const exportFavDeadlines = () => {
+    const events = CONFERENCES
+      .filter((c) => favs.has('c:' + confKey(c)))
+      .flatMap((c) => confToIcsEvents(c, now));
+    if (!events.length) {
+      setExportMsg(favConfCount === 0 ? '请先收藏感兴趣的会议（卡片右上角 ★），再导出日历' : '收藏的会议暂无未来截稿日期');
+      setTimeout(() => setExportMsg(''), 4000);
+      return;
+    }
+    downloadICS('ccf-deadlines.ics', buildICS(events));
+    setExportMsg(`已导出 ${events.length} 个截稿提醒，打开下载的 .ics 文件即可导入日历`);
+    setTimeout(() => setExportMsg(''), 4000);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
@@ -102,7 +124,12 @@ export default function Home() {
             <p className="text-xs text-muted-foreground">
               {CONFERENCES.length} 个会议 · {JOURNALS.length} 个期刊 · {upcomingCount} 个进行中 DDL · 数据源自 ccfddl
             </p>
+            {exportMsg && <p className="text-xs text-primary font-medium mt-0.5">{exportMsg}</p>}
           </div>
+          <Button variant="outline" size="sm" onClick={exportFavDeadlines} title={`把收藏会议（${favConfCount} 个）的未来截稿日期导出为 .ics 日历文件，含截止前 7 天/1 天/3 小时提醒`}>
+            <CalendarPlus className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">导出日历</span>{favConfCount > 0 && `（${favConfCount}）`}
+          </Button>
           <a
             href="https://github.com/ccfddl/ccf-deadlines"
             target="_blank"
